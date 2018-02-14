@@ -162,11 +162,6 @@ namespace _20180117_GiocoCatchTheGold
             _forza += 10;
         }
 
-        public void azz_forza()
-        {
-            _forza = 0;
-        }
-
         public int forza
         {
             get

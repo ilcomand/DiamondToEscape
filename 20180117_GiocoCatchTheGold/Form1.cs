@@ -68,6 +68,12 @@ namespace _20180117_GiocoCatchTheGold
                     {
                         D[i].Visible = false;
                         elimina_Picture(D, i, ref ND);
+
+                        if (eroe.forza == 30)
+                            timer1.Interval = 250;
+
+                        if (eroe.forza >= 40)
+                            timer1.Interval = 200;
                     }
                 }
 
@@ -84,7 +90,7 @@ namespace _20180117_GiocoCatchTheGold
                     pictureBoxEND.ImageLocation = "You Win.gif";
 
                     lblInfoFinale.Visible = true;
-                    lblInfoFinale.BringToFront();
+                    lblInfoFinale.Parent = pictureBoxEND;
                     lblInfoFinale.ForeColor = Color.BlueViolet;
                     lblInfoFinale.Text = txtNEroe.Text + " E' FUGGITO DA " + txtNNemico.Text + " !";
 
@@ -122,10 +128,12 @@ namespace _20180117_GiocoCatchTheGold
             eroe.PreviewKeyDown += MyPreviewKeyDown;
             eroe.KeyDown += MyKeyDown;
 
+            lblSpiegazione.Visible = false;
             lblControl.Visible = true;
             lblControl.Text = "FORZA INSUFFICIENTE !";
             lblControl.ForeColor = Color.DarkRed;
             timer1.Start();
+            timer1.Interval = 300;
         }
 
 
@@ -148,10 +156,12 @@ namespace _20180117_GiocoCatchTheGold
 
                 timer1.Stop();
 
+                lblSpiegazione.Visible = true;
                 lblInfoFinale.Visible = false;
                 lblForza.Visible = true;
                 txtForza.Visible = true;
                 pictureBoxEND.Visible = false;
+                lblExit.ForeColor = Color.Tomato;
 
                 campo = new char[11, 11];
 
@@ -240,11 +250,6 @@ namespace _20180117_GiocoCatchTheGold
             }
         }
 
-        private void Form1_Load(object sender, EventArgs e)
-        {
-
-        }
-
         private void btnScegliImmagine1_Click(object sender, EventArgs e)
         {
             openFileDialog1.Filter = "Immagine|*.png";
@@ -259,8 +264,6 @@ namespace _20180117_GiocoCatchTheGold
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            timer1.Interval = 300;
-
             if (nemico.move(campo, eroe.x, eroe.y))
             {
                 timer1.Stop();
@@ -270,13 +273,14 @@ namespace _20180117_GiocoCatchTheGold
                 pictureBoxEND.ImageLocation = "Game Over.gif";
 
                 lblInfoFinale.Visible = true;
-                lblInfoFinale.BringToFront();
+                lblInfoFinale.Parent = pictureBoxEND;
                 lblInfoFinale.ForeColor = Color.Red;
                 lblInfoFinale.Text = txtNNemico.Text + " HA UCCISO " + txtNEroe.Text + " !";
 
                 lblForza.Visible = false;
                 txtForza.Visible = false;
                 lblControl.Visible = false;
+                lblSpiegazione.Visible = true;
 
                 eroe.Enabled = false;
                 nemico.Enabled = false;

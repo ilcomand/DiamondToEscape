@@ -53,6 +53,7 @@
             this.lblNomeGioco = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
+            this.lblSpiegazione = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxExit)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxEND)).BeginInit();
@@ -78,8 +79,8 @@
             // lblInfoFinale
             // 
             this.lblInfoFinale.BackColor = System.Drawing.Color.Transparent;
-            this.lblInfoFinale.Font = new System.Drawing.Font("Mom´sTypewriter", 14.25F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic))), System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblInfoFinale.Location = new System.Drawing.Point(15, 440);
+            this.lblInfoFinale.Font = new System.Drawing.Font("Mom´sTypewriter", 12F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic))), System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblInfoFinale.Location = new System.Drawing.Point(17, 443);
             this.lblInfoFinale.Name = "lblInfoFinale";
             this.lblInfoFinale.Size = new System.Drawing.Size(518, 36);
             this.lblInfoFinale.TabIndex = 6;
@@ -114,7 +115,7 @@
             this.pictureBoxEND.BackColor = System.Drawing.Color.Transparent;
             this.pictureBoxEND.Location = new System.Drawing.Point(-3, -3);
             this.pictureBoxEND.Name = "pictureBoxEND";
-            this.pictureBoxEND.Size = new System.Drawing.Size(557, 554);
+            this.pictureBoxEND.Size = new System.Drawing.Size(557, 555);
             this.pictureBoxEND.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.pictureBoxEND.TabIndex = 0;
             this.pictureBoxEND.TabStop = false;
@@ -292,11 +293,22 @@
             this.label4.TabIndex = 17;
             this.label4.Text = "IMMAGINE";
             // 
+            // lblSpiegazione
+            // 
+            this.lblSpiegazione.AutoSize = true;
+            this.lblSpiegazione.Font = new System.Drawing.Font("Mom´sTypewriter", 8.249999F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblSpiegazione.Location = new System.Drawing.Point(570, 484);
+            this.lblSpiegazione.Name = "lblSpiegazione";
+            this.lblSpiegazione.Size = new System.Drawing.Size(252, 42);
+            this.lblSpiegazione.TabIndex = 18;
+            this.lblSpiegazione.Text = "1. NEW GAME -> GENERA IL CAMPO;\r\n\r\n2. START -> INIZIA LA PARTITA;";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(829, 585);
+            this.Controls.Add(this.lblSpiegazione);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.lblNomeGioco);
@@ -316,7 +328,6 @@
             this.Controls.Add(this.panel1);
             this.Name = "Form1";
             this.Text = "Form1";
-            this.Load += new System.EventHandler(this.Form1_Load);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxExit)).EndInit();
@@ -353,6 +364,7 @@
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label lblInfoFinale;
         private System.Windows.Forms.Label lblExit;
+        private System.Windows.Forms.Label lblSpiegazione;
     }
 }
 
