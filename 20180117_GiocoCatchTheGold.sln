@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "20180117_GiocoCatchTheGold"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CatchTheGold.Core", "CatchTheGold.Core\CatchTheGold.Core.csproj", "{82B564B2-2714-475B-A411-5058781DA97F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CatchTheGold.Core.Tests", "CatchTheGold.Core.Tests\CatchTheGold.Core.Tests.csproj", "{D5575801-781D-4765-A549-0EDBCC69ABA0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{82B564B2-2714-475B-A411-5058781DA97F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{82B564B2-2714-475B-A411-5058781DA97F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{82B564B2-2714-475B-A411-5058781DA97F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D5575801-781D-4765-A549-0EDBCC69ABA0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D5575801-781D-4765-A549-0EDBCC69ABA0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D5575801-781D-4765-A549-0EDBCC69ABA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D5575801-781D-4765-A549-0EDBCC69ABA0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
