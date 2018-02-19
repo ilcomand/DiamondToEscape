@@ -43,6 +43,7 @@
     <Compile Include="Direction.cs" />
     <Compile Include="Eroe.cs" />
     <Compile Include="Field.cs" />
+    <Compile Include="FieldElement.cs" />
     <Compile Include="Nemico.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

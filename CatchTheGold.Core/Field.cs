@@ -1,48 +1,28 @@
-﻿namespace CatchTheGold.Core
-{
-    class Field
-    {
-        public static bool CheckWall(char[,] field, Direction direction, int x, int y)
-        {
-            bool f = false;
+﻿using System;
 
+namespace CatchTheGold.Core
+{
+    public class Field
+    {
+        public static bool CheckWall(FieldElement[,] field, Direction direction, int x, int y)
+        {
             switch (direction)
             {
-                case Direction.Up:
-                    {
-                        if (field[x, y - 1] == 'M')
-                            f = true;
-
-                        break;
-                    }
+                case Direction.Up:                    
+                    return (y - 1 >= 0 && field[x, y - 1] == FieldElement.Wall);
 
                 case Direction.Down:
-                    {
-                        if (field[x, y + 1] == 'M')
-                            f = true;
-
-                        break;
-                    }
+                    return (y + 1 <= (field.GetLength(0) - 1) && field[x, y + 1] == FieldElement.Wall);
 
                 case Direction.Right:
-                    {
-                        if (field[x + 1, y] == 'M')
-                            f = true;
-
-                        break;
-                    }
+                    return (x + 1 <= (field.GetLength(1) - 1) && field[x + 1, y] == FieldElement.Wall);
 
                 case Direction.Left:
-                    {
-                        if (field[x - 1, y] == 'M')
-                            f = true;
+                    return (x - 1 >= 0 && field[x - 1, y] == FieldElement.Wall);
 
-                        break;
-                    }
-            }
-
-            if (f) return true;
-            else return false;
+                default:
+                    throw new Exception("Invalid direction");
+            }            
         }
     }
 }
