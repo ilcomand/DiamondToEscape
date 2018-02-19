@@ -4,49 +4,37 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Drawing;
 
 namespace _20180117_GiocoCatchTheGold
 {
-    class Eroe : PictureBox
+    class Eroe
     {
         private string _nome;
         private int _forza;
         public int x;
         public int y;
+        public int xExit;
+        public int yExit;
 
-        public Eroe(Control parent, string nome, char[,] field, string imagepath)
+        public Eroe(string name, int _x, int _y)
         {
-            Width = 50;
-            Height = 50;
-            Top = 450;
-            Left = 250;
-
-            ImageLocation = imagepath;
-            SizeMode = PictureBoxSizeMode.StretchImage;
-
-            Parent = parent;
-
-            _nome = nome;
+            _nome = name;
             _forza = 0;
-
-            x = 5;
-            y = 9;
-
-            BringToFront();
+            x = _x;
+            y = _y;
+            xExit = 5;
+            yExit = -1;
         }
 
-        //Movimento dell'eroe:
-        public bool move(KeyEventArgs e, char[,] field)
+        public bool move(KeyEventArgs e, char[,] field, ref int top, ref int left)
         {
             switch (e.KeyCode)
             {
                 case Keys.Up:
                     {
-                        //Viene controllato che se è possibile vincere (posizione e forza) mi fa uscire altrimenti si blocca sui limiti del campo:
-                        if ((y - 1 >= 0 && !check_wall(field, "Top")) || (win_pos(5,0) && win_for()))
+                        if ((y - 1 >= 0 && !check_wall(field, "Top")) || (win_position(xExit, yExit + 1) && win_for()))
                         {
-                            Top -= 50;
+                            top -= 50;
                             y -= 1;
                         }
 
@@ -57,7 +45,7 @@ namespace _20180117_GiocoCatchTheGold
                     {
                         if (y + 1 <= 10 && !check_wall(field, "Down"))
                         {
-                            Top += 50;
+                            top += 50;
                             y += 1;
                         }
 
@@ -68,7 +56,7 @@ namespace _20180117_GiocoCatchTheGold
                     {
                         if (x + 1 <= 10 && !check_wall(field, "Right"))
                         {
-                            Left += 50;
+                            left += 50;
                             x += 1;
                         }
 
@@ -79,7 +67,7 @@ namespace _20180117_GiocoCatchTheGold
                     {
                         if (x - 1 >= 0 && !check_wall(field, "Left"))
                         {
-                            Left -= 50;
+                            left -= 50;
                             x -= 1;
                         }
 
@@ -87,20 +75,18 @@ namespace _20180117_GiocoCatchTheGold
                     }
             }
 
-            //Se si riesce a uscire dal gioco (vincere) ritorna false in modo che dal Main dice che si è vinto:
-            if (x == 5 && y <= -1)
+            if (x == xExit && y <= yExit)
             {
                 return false;
             }
 
             else
             {
-                if (power(field)) return true; //Ritorna true se la forza viene modificata.
+                if (check_power(field)) return true;
                 else return false;
             }
         }
 
-        //Controlla se nella direzione dove si vuole andare c'è un muro:
         public bool check_wall(char[,] field, string direction)
         {
             bool f = false;
@@ -144,25 +130,24 @@ namespace _20180117_GiocoCatchTheGold
             else return false;
         }
 
-        //Controlla se viene preso un diamante e quindi modifica la forza:
-        public bool power(char[,] field)
+        public bool check_power(char[,] field)
         {
             if (field[x, y] == 'D')
             {
                 field[x, y] = '\0';
-                mod_forza();
+                mod_power();
                 return true;
             }
 
             else return false;
         }
 
-        public void mod_forza()
+        public void mod_power()
         {
             _forza += 10;
         }
 
-        public int forza
+        public int power
         {
             get
             {
@@ -170,8 +155,7 @@ namespace _20180117_GiocoCatchTheGold
             }
         }
 
-        //Controlla se la posizione dell'eroe coincide con quella della porta:
-        public bool win_pos(int x_exit, int y_exit)
+        public bool win_position(int x_exit, int y_exit)
         {
             if (x == x_exit && y == y_exit)
                 return true;
@@ -180,7 +164,6 @@ namespace _20180117_GiocoCatchTheGold
                 return false;
         }
 
-        //Controlla se la forza è al max.:
         public bool win_for()
         {
             if (_forza == 50)
@@ -190,180 +173,72 @@ namespace _20180117_GiocoCatchTheGold
         }
     }
 
-    class Nemico : PictureBox
+    class Nemico
     {
         public string _nome;
         public int x;
         public int y;
 
-        public bool d; //Serve per farlo muovere una volta in y ed una in x.
+        public bool direction; //Serve per farlo muovere una volta in y ed una in x.
 
-        public Nemico(Control parent, string nome, char[,] field, string imagepath)
+        public Nemico(string name, int _x, int _y)
         {
-            Width = 50;
-            Height = 50;
-            Top = 50;
-            Left = 50;
+            _nome = name;
+            x = _x;
+            y = _y;
 
-            ImageLocation = imagepath;
-            SizeMode = PictureBoxSizeMode.StretchImage;
-
-            Parent = parent;
-
-            BringToFront();
-
-            _nome = nome;
-
-            x = 1;
-            y = 1;
-
-            d = false; //false -> si muove in y | true -> si muove in x.
-                  
+            direction = false; //false -> si muove in y | true -> si muove in x.                 
         }
 
-        //Movimento del nemico (i codici commentati erano solo per far muovere sempre il nemico, ovvero se c'era un ostacolo nella direzione dove doveva muoversi; così se non può andarci aspetta il prossimo tick):
-        public bool move(char[,] field, int xe, int ye)
+        public bool move(char[,] field, int xeroe, int yeroe, ref int top, ref int left)
         {
-            if (d)
+            if (direction)
             {
-                //Spostamento in x (quando è MINORE dell'eroe):
-                if (x < xe)
+                if (x < xeroe)
                 {
                     if (x + 1 <= 10 && field[x + 1, y] != 'M')
                     {
                         x += 1;
-                        Left += 50;
+                        left += 50;
                     }
-
-                    //Se lo spostamento in x è ostruito si muove in y:
-                    //else
-                    //{
-                    //    if (y < ye)
-                    //    {
-                    //        if (y + 1 <= 10 && field[x, y + 1] != 'M')
-                    //        {
-                    //            y += 1;
-                    //            Top += 50;
-                    //        }
-                    //    }
-
-                    //    else
-                    //    {
-                    //        if (y - 1 >= 0 && field[x, y - 1] != 'M')
-                    //        {
-                    //            y -= 1;
-                    //            Top -= 50;
-                    //        }
-                    //    }
-                    //}
                 }
 
-                //Spostamento in x (quando è MAGGIORE dell'eroe):
                 else
                 {
                     if (x - 1 >= 0 && field[x - 1, y] != 'M')
                     {
                         x -= 1;
-                        Left -= 50;
+                        left -= 50;
                     }
-
-                    //Se lo spostamento in x è ostruito si muove in y:
-                    //else
-                    //{
-                    //    if (y < ye)
-                    //    {
-                    //        if (y + 1 <= 10 && field[x, y + 1] != 'M')
-                    //        {
-                    //            y += 1;
-                    //            Top += 50;
-                    //        }
-                    //    }
-
-                    //    else
-                    //    {
-                    //        if (y - 1 >= 0 && field[x, y - 1] != 'M')
-                    //        {
-                    //            y -= 1;
-                    //            Top -= 50;
-                    //        }
-                    //    }
-                    //}
                 }
 
-                d = false;
+                direction = false;
             }
 
-            //Spostamento in y (quando è MINORE dell'eroe):
             else
             {
-                if (y < ye)
+                if (y < yeroe)
                 {
                     if (y + 1 <= 10 && field[x, y + 1] != 'M')
                     {
                         y += 1;
-                        Top += 50;
+                        top += 50;
                     }
-
-                    //Se lo spostamento in y è ostruito si muove in x:
-                    //else
-                    //{
-                    //    if (x < xe)
-                    //    {
-                    //        if (x + 1 <= 10 && field[x + 1, y] != 'M')
-                    //        {
-                    //            x += 1;
-                    //            Left += 50;
-                    //        }
-                    //    }
-
-                    //    else
-                    //    {
-                    //        if (x - 1 >= 0 && field[x - 1, y] != 'M')
-                    //        {
-                    //            x -= 1;
-                    //            Left -= 50;
-                    //        }
-                    //    }
-                    //}
                 }
 
-                //Spostamento in y (quando è MAGGIORE dell'eroe):
                 else
                 {
                     if (y - 1 >= 0 && field[x, y - 1] != 'M')
                     {
                         y -= 1;
-                        Top -= 50;
+                        top -= 50;
                     }
-
-                    //Se lo spostamento in y è ostruito si muove in x:
-                    //else
-                    //{
-                    //    if (x < xe)
-                    //    {
-                    //        if (x + 1 <= 10 && field[x + 1, y] != 'M')
-                    //        {
-                    //            x += 1;
-                    //            Left += 50;
-                    //        }
-                    //    }
-
-                    //    else
-                    //    {
-                    //        if (x - 1 >= 0 && field[x - 1, y] != 'M')
-                    //        {
-                    //            x -= 1;
-                    //            Left -= 50;
-                    //        }
-                    //    }
-                    //}
                 }
 
-                d = true;
+                direction = true;
             }
 
-            //Controlla se la posizione del nemico coincide con quella dell'eroe:
-            if ((x == xe) && (y == ye))
+            if ((x == xeroe) && (y == yeroe))
                 return true;
             else
                 return false;

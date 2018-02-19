@@ -17,138 +17,142 @@ namespace _20180117_GiocoCatchTheGold
             InitializeComponent();
         }
 
-        //Le prime due funzioni fanno sparire gli oggetti:
-        public void NO_visible_Oggetti(PictureBox[] v, int n)
+        public void NO_visible_Personaggi(PictureBox personaggio)
         {
-            for (int i = 0; i < n; i++)
+            personaggio.Visible = false;
+        }
+
+        public void NO_visible_Oggetti(PictureBox[] v, int ne)
+        {
+            for (int i = 0; i < ne; i++)
                 v[i].Visible = false;
         }
 
-        public void NO_visible_Personaggi(PictureBox p)
+        public void crea_Personaggio(PictureBox personaggio, Control parent, int dimension, int top, int left, string imagepath)
         {
-            p.Visible = false;
+            personaggio.Width = dimension;
+            personaggio.Height = dimension;
+            personaggio.Top = top;
+            personaggio.Left = left;
+
+            personaggio.ImageLocation = imagepath;
+            personaggio.SizeMode = PictureBoxSizeMode.StretchImage;
+
+            personaggio.Parent = parent;
+            personaggio.BringToFront();
         }
 
-        //Questa elimina un'immagine (diamante) quando la si prende, cancellandola anche dal vettore di picture:
-        public void elimina_Picture(PictureBox[] v, int x, ref int n)
+        public void crea_Pictures(PictureBox[] oggetti, int ne, Control parent, int NOx, int NOy, char indicator, string path)
         {
-            for (int i = x; i < n - 1; i++)
+            Random r = new Random();
+            int x = 0;
+            int y = 0;
+
+            for (int i = 0; i < ne; i++)
+            {
+                x = r.Next(0, 11);
+                y = r.Next(0, 11);
+
+                if (x != NOx && y != NOy && campo[x, y] == '\0')
+                {
+                    campo[x, y] = indicator;
+                    oggetti[i] = new PictureBox();
+
+                    oggetti[i].Width = dimension;
+                    oggetti[i].Height = dimension;
+                    oggetti[i].Top = y * dimension;
+                    oggetti[i].Left = x * dimension;
+
+                    oggetti[i].ImageLocation = path;
+                    oggetti[i].SizeMode = PictureBoxSizeMode.StretchImage;
+                    oggetti[i].Parent = parent;
+                }
+
+                else i--;
+            }
+        }
+
+        public void elimina_Picture(PictureBox[] v, int x, ref int ne)
+        {
+            for (int i = x; i < ne - 1; i++)
             {
                 v[i] = v[i + 1];
             }
 
-            n--;
+            ne--;
+        }
+
+        public void Image_Select(OpenFileDialog ofd, ref string name)
+        {
+            {
+                ofd.Filter = "Immagine|*.png";
+                ofd.Title = "Seleziona un'immagine (png)";
+                ofd.FileName = "";
+
+                if (ofd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    name = ofd.FileName;
+                }
+            }
+        }
+
+        public bool Check_Diamond(PictureBox[] v, int ne, int dimension, ref int pos)
+        {
+            bool f = false;
+
+            for (int i = 0; i < ne; i++)
+            {
+                if (Eroe.x * dimension == v[i].Left && Eroe.y * dimension == v[i].Top)
+                {
+                    f = true;
+                    pos = i;
+                }
+            }
+
+            if (f) return true;
+            else return false;
+        }
+
+        public bool Check_MaxPower(int max)
+        {
+            if (Eroe.power == max) return true;
+            else return false;
+        }
+
+        public bool Check_WinGame(int x, int y)
+        {
+            if (Eroe.win_position(x, y) && Eroe.win_for()) return true;
+            else return false;
         }
 
         static char[,] campo;
-        Eroe eroe;
-        Nemico nemico;
 
-        int ND;//Numero dei diamanti.
-        PictureBox[] D;
+        PictureBox[] Diamonds;
+        PictureBox[] Walls;
+        int ND, NM;
 
-        int NM; //Numero dei muri.
-        PictureBox[] M;
+        Eroe Eroe;
+        PictureBox pbEroe;
+        int topEroe, leftEroe;
 
-        int x, y; //Coordinate per i diamanti e i muri (generate random - automaticamente).
+        Nemico Nemico;
+        PictureBox pbNemico;
+        int topNemico, leftNemico;
 
-        bool f = false; //Serve per fare un controllo quando si vuole iniziare una nuova partita.
+        int dimension = 50;
+        bool new_game = false;
+        string path_eroe, path_nemico;
 
-        string nome_eroe, nome_nemico; //Salvano il nome dell'immagine che selezionata.
-
-        //Spostamento dell'eroe:
-        void MyKeyDown(object sender, KeyEventArgs e)
-        {
-            if (eroe.move(e, campo))
-            {
-                //Controlla se ha preso qualche diamente:
-                for (int i = 0; i < ND; i++)
-                {
-                    if (eroe.x * 50 == D[i].Left && eroe.y * 50 == D[i].Top)
-                    {
-                        D[i].Visible = false;
-                        elimina_Picture(D, i, ref ND);
-
-                        if (eroe.forza == 30)
-                            timer1.Interval = 250;
-
-                        if (eroe.forza >= 40)
-                            timer1.Interval = 200;
-                    }
-                }
-
-                txtForza.Text = eroe.forza.ToString();
-            }
-
-            else
-            {
-                //Controlla se la partita viene vinta:
-                if (eroe.win_pos(5, -1) && eroe.win_for())
-                {
-                    pictureBoxEND.Visible = true;
-                    pictureBoxEND.BringToFront();
-                    pictureBoxEND.ImageLocation = "You Win.gif";
-
-                    lblInfoFinale.Visible = true;
-                    lblInfoFinale.Parent = pictureBoxEND;
-                    lblInfoFinale.ForeColor = Color.BlueViolet;
-                    lblInfoFinale.Text = txtNEroe.Text + " E' FUGGITO DA " + txtNNemico.Text + " !";
-
-                    lblForza.Visible = false;
-                    txtForza.Visible = false;
-                    lblControl.Visible = false;
-
-                    eroe.Enabled = false;
-                    nemico.Enabled = false;
-
-                    pictureBoxStart.Enabled = false;
-                    pictureBoxNewGame.Focus();
-                }
-            }
-
-            //Se la forza è al max. avverte sullo schermo:
-            if (eroe.forza == 50)
-            {
-                lblControl.Text = "FORZA OK !";
-                lblControl.ForeColor = Color.Green;
-
-                lblExit.ForeColor = Color.LightGreen;
-            }
-        }
-
-        void MyPreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
-        {
-            e.IsInputKey = true; //Serve per dire che qualunque evento della tastiera deve essere preso come input (le frecce non le prende di base).
-        }
-
-        //Questo pulsante avvia effettivamente la partita:
-        private void pictureBoxStart_Click(object sender, EventArgs e)
-        {
-            eroe.Focus();
-            eroe.PreviewKeyDown += MyPreviewKeyDown;
-            eroe.KeyDown += MyKeyDown;
-
-            lblSpiegazione.Visible = false;
-            lblControl.Visible = true;
-            lblControl.Text = "FORZA INSUFFICIENTE !";
-            lblControl.ForeColor = Color.DarkRed;
-            timer1.Start();
-            timer1.Interval = 300;
-        }
-
-
-        //Il pulsante genera il campo e i personaggi:
         private void pictureBoxNewGame_Click(object sender, EventArgs e)
         {
-            if (!string.IsNullOrWhiteSpace(txtNEroe.Text) && nome_eroe != "" && !string.IsNullOrWhiteSpace(txtNNemico.Text) && nome_nemico != "")
+            if (!string.IsNullOrWhiteSpace(txtNEroe.Text) && path_eroe != "" && !string.IsNullOrWhiteSpace(txtNNemico.Text) && path_nemico != "")
             {
-                //Al primo avvio del gioco gli oggetti non spariscono (se si preme di nuovo il NEW GAME si):
-                if (f)
+                if (new_game)
                 {
-                    NO_visible_Oggetti(D, ND);
-                    NO_visible_Oggetti(M, NM);
-                    NO_visible_Personaggi(eroe);
-                    NO_visible_Personaggi(nemico);
+                    NO_visible_Personaggi(pbEroe);
+                    NO_visible_Personaggi(pbNemico);
+                    NO_visible_Oggetti(Diamonds, ND);
+                    NO_visible_Oggetti(Walls, NM);
 
                     txtForza.Text = "";
                     lblControl.Text = "";
@@ -165,107 +169,134 @@ namespace _20180117_GiocoCatchTheGold
 
                 campo = new char[11, 11];
 
-                Random r = new Random();
                 ND = 5;
-                D = new PictureBox[ND];
-                NM = 10;
-                M = new PictureBox[NM];
+                Diamonds = new PictureBox[ND];
 
-                x = 0;
-                y = 0;
+                NM = 15;
+                Walls = new PictureBox[NM];
 
-                //Vengono generati i diamanti e i muri in posizioni diversi:
-                for (int i = 0; i < ND; i++)
-                {
-                    x = r.Next(0, 11);
-                    y = r.Next(0, 11);
+                pbEroe = new PictureBox();
+                topEroe = 450;
+                leftEroe = 250;
 
-                    if (x != 5 && y != 0 && campo[x, y] == '\0')
-                    {
-                        campo[x, y] = 'D';
-                        D[i] = new PictureBox();
+                pbNemico = new PictureBox();
+                topNemico = 50;
+                leftNemico = 50;
 
-                        D[i].Width = 50;
-                        D[i].Height = 50;
-                        D[i].Top = y * 50;
-                        D[i].Left = x * 50;
+                Eroe = new Eroe(txtNEroe.Text, 5, 9);
+                crea_Personaggio(pbEroe, panel1, dimension, topEroe, leftEroe, path_eroe);
 
-                        D[i].ImageLocation = "Diamante.png";
-                        D[i].SizeMode = PictureBoxSizeMode.StretchImage;
-                        D[i].Parent = panel1;
-                    }
+                Nemico = new Nemico(txtNNemico.Text, 1, 1);
+                crea_Personaggio(pbNemico, panel1, dimension, topNemico, leftNemico, path_nemico);
 
-                    else i--;
-                }
+                crea_Pictures(Diamonds, ND, panel1, 5, 0, 'D', "Diamante.png");
+                crea_Pictures(Walls, NM, panel1, 5, 0, 'M', "Muro.png");
 
-                for (int i = 0; i < NM; i++)
-                {
-                    x = r.Next(0, 11);
-                    y = r.Next(0, 11);
-
-                    if (x != 5 && y != 0 && campo[x, y] == '\0')
-                    {
-                        campo[x, y] = 'M';
-                        M[i] = new PictureBox();
-
-                        M[i].Width = 50;
-                        M[i].Height = 50;
-                        M[i].Top = y * 50;
-                        M[i].Left = x * 50;
-
-                        M[i].ImageLocation = "Muro.png";
-                        M[i].SizeMode = PictureBoxSizeMode.StretchImage;
-                        M[i].Parent = panel1;
-                    }
-
-                    else i--;
-                }
-
-                //Creo i personaggi:
-                eroe = new Eroe(panel1, txtNEroe.Text.ToUpper(), campo, nome_eroe);
-                nemico = new Nemico(panel1, txtNNemico.Text.ToUpper(), campo, nome_nemico);
-
-                f = true;
+                new_game = true;
 
                 pictureBoxStart.Enabled = true;
                 txtForza.Text = "0";
             }
-            
+
             else
             {
                 MessageBox.Show("ERRORE, INFORMAZIONI MANCANTI !");
-            }           
+            }
         }
 
-        //Le "mie" immagini sono nel Debug del progetto:
+        private void pictureBoxStart_Click(object sender, EventArgs e)
+        {
+            pbEroe.Focus();
+            pbEroe.PreviewKeyDown += MyPreviewKeyDown;
+            pbEroe.KeyDown += MyKeyDown;
+
+            lblSpiegazione.Visible = false;
+            lblControl.Visible = true;
+            lblControl.Text = "FORZA INSUFFICIENTE !";
+            lblControl.ForeColor = Color.DarkRed;
+            timer1.Start();
+            timer1.Interval = 300;
+        }
+
+        void MyKeyDown(object sender, KeyEventArgs e)
+        {
+            int i = 0;
+
+            if (Eroe.move(e, campo, ref topEroe, ref leftEroe))
+            {
+                if(Check_Diamond(Diamonds, ND, dimension, ref i))
+                {
+                    Diamonds[i].Visible = false;
+                    elimina_Picture(Diamonds, i, ref ND);
+
+                    if (Eroe.power == 30)
+                        timer1.Interval = 250;
+
+                    if (Eroe.power >= 40)
+                        timer1.Interval = 200;
+                }
+
+                txtForza.Text = Eroe.power.ToString();
+            }
+
+            else
+            {
+                if (Check_WinGame(5, -1))
+                {
+                    pictureBoxEND.Visible = true;
+                    pictureBoxEND.BringToFront();
+                    pictureBoxEND.ImageLocation = "You Win.gif";
+
+                    lblInfoFinale.Visible = true;
+                    lblInfoFinale.Parent = pictureBoxEND;
+                    lblInfoFinale.ForeColor = Color.BlueViolet;
+                    lblInfoFinale.Text = txtNEroe.Text + " E' FUGGITO DA " + txtNNemico.Text + " !";
+
+                    lblForza.Visible = false;
+                    txtForza.Visible = false;
+                    lblControl.Visible = false;
+
+                    pbEroe.Enabled = false;
+                    pbNemico.Enabled = false;
+
+                    pictureBoxStart.Enabled = false;
+                    pictureBoxNewGame.Focus();
+                }
+            }
+
+            pbEroe.Top = topEroe;
+            pbEroe.Left = leftEroe;
+
+            if (Check_MaxPower(50))
+            {
+                lblControl.Text = "FORZA OK !";
+                lblControl.ForeColor = Color.Green;
+                lblExit.ForeColor = Color.LightGreen;
+            }
+        }
+
+        void MyPreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
+        {
+            e.IsInputKey = true;
+        }
+
         private void btnScegliImmagine2_Click(object sender, EventArgs e)
         {
-            openFileDialog1.Filter = "Immagine|*.png";
-            openFileDialog1.Title = "Seleziona un'immagine (png)";
-            openFileDialog1.FileName = "";
-
-            if (openFileDialog1.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-            {
-                nome_nemico = openFileDialog1.FileName;
-            }
+            Image_Select(openFileDialog1, ref path_nemico);
         }
 
         private void btnScegliImmagine1_Click(object sender, EventArgs e)
         {
-            openFileDialog1.Filter = "Immagine|*.png";
-            openFileDialog1.Title = "Seleziona un'immagine (png)";
-            openFileDialog1.FileName = "";
-
-            if (openFileDialog1.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-            {
-                nome_eroe = openFileDialog1.FileName;
-            }
+            Image_Select(openFileDialog1, ref path_eroe);
         }
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            if (nemico.move(campo, eroe.x, eroe.y))
+            if (Nemico.move(campo, Eroe.x, Eroe.y, ref topNemico, ref leftNemico))
             {
+                pbNemico.Top = topNemico;
+                pbNemico.Left = leftNemico;
+
                 timer1.Stop();
 
                 pictureBoxEND.Visible = true;
@@ -282,12 +313,15 @@ namespace _20180117_GiocoCatchTheGold
                 lblControl.Visible = false;
                 lblSpiegazione.Visible = true;
 
-                eroe.Enabled = false;
-                nemico.Enabled = false;
+                pbEroe.Enabled = false;
+                pbNemico.Enabled = false;
 
                 pictureBoxStart.Enabled = false;
                 pictureBoxNewGame.Focus();
             }
+
+            pbNemico.Top = topNemico;
+            pbNemico.Left = leftNemico;
         }
     }
 }
