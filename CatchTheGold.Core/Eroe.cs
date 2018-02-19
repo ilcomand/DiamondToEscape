@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-
-namespace _20180117_GiocoCatchTheGold
+﻿
+namespace CatchTheGold.Core
 {
-    class Eroe
+    public class Eroe
     {
         private string _nome;
         private int _forza;
@@ -26,11 +20,11 @@ namespace _20180117_GiocoCatchTheGold
             yExit = -1;
         }
 
-        public bool move(KeyEventArgs e, char[,] field, ref int top, ref int left)
+        public bool move(Direction direction, char[,] field, ref int top, ref int left)
         {
-            switch (e.KeyCode)
+            switch (direction)
             {
-                case Keys.Up:
+                case Direction.Up:
                     {
                         if ((y - 1 >= 0 && !check_wall(field, "Top")) || (win_position(xExit, yExit + 1) && win_for()))
                         {
@@ -41,7 +35,7 @@ namespace _20180117_GiocoCatchTheGold
                         break;
                     }
 
-                case Keys.Down:
+                case Direction.Down:
                     {
                         if (y + 1 <= 10 && !check_wall(field, "Down"))
                         {
@@ -52,7 +46,7 @@ namespace _20180117_GiocoCatchTheGold
                         break;
                     }
 
-                case Keys.Right:
+                case Direction.Right:
                     {
                         if (x + 1 <= 10 && !check_wall(field, "Right"))
                         {
@@ -63,7 +57,7 @@ namespace _20180117_GiocoCatchTheGold
                         break;
                     }
 
-                case Keys.Left:
+                case Direction.Left:
                     {
                         if (x - 1 >= 0 && !check_wall(field, "Left"))
                         {
@@ -173,75 +167,5 @@ namespace _20180117_GiocoCatchTheGold
         }
     }
 
-    class Nemico
-    {
-        public string _nome;
-        public int x;
-        public int y;
-
-        public bool direction; //Serve per farlo muovere una volta in y ed una in x.
-
-        public Nemico(string name, int _x, int _y)
-        {
-            _nome = name;
-            x = _x;
-            y = _y;
-
-            direction = false; //false -> si muove in y | true -> si muove in x.                 
-        }
-
-        public bool move(char[,] field, int xeroe, int yeroe, ref int top, ref int left)
-        {
-            if (direction)
-            {
-                if (x < xeroe)
-                {
-                    if (x + 1 <= 10 && field[x + 1, y] != 'M')
-                    {
-                        x += 1;
-                        left += 50;
-                    }
-                }
-
-                else
-                {
-                    if (x - 1 >= 0 && field[x - 1, y] != 'M')
-                    {
-                        x -= 1;
-                        left -= 50;
-                    }
-                }
-
-                direction = false;
-            }
-
-            else
-            {
-                if (y < yeroe)
-                {
-                    if (y + 1 <= 10 && field[x, y + 1] != 'M')
-                    {
-                        y += 1;
-                        top += 50;
-                    }
-                }
-
-                else
-                {
-                    if (y - 1 >= 0 && field[x, y - 1] != 'M')
-                    {
-                        y -= 1;
-                        top -= 50;
-                    }
-                }
-
-                direction = true;
-            }
-
-            if ((x == xeroe) && (y == yeroe))
-                return true;
-            else
-                return false;
-        }
-    }
+    
 }

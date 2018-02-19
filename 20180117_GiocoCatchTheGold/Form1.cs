@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
+﻿using CatchTheGold.Core;
+using System;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
+
 
 namespace _20180117_GiocoCatchTheGold
 {
@@ -208,7 +204,7 @@ namespace _20180117_GiocoCatchTheGold
         {
             pbEroe.Focus();
             pbEroe.PreviewKeyDown += MyPreviewKeyDown;
-            pbEroe.KeyDown += MyKeyDown;
+            pbEroe.KeyDown += OnKeyDown;
 
             lblSpiegazione.Visible = false;
             lblControl.Visible = true;
@@ -218,11 +214,14 @@ namespace _20180117_GiocoCatchTheGold
             timer1.Interval = 300;
         }
 
-        void MyKeyDown(object sender, KeyEventArgs e)
+        void OnKeyDown(object sender, KeyEventArgs e)
         {
             int i = 0;
 
-            if (Eroe.move(e, campo, ref topEroe, ref leftEroe))
+            var direction = ToDirection(e.KeyCode);
+            if (!direction.HasValue) return;
+
+            if (Eroe.move(direction.Value, campo, ref topEroe, ref leftEroe))
             {
                 if(Check_Diamond(Diamonds, ND, dimension, ref i))
                 {
@@ -323,5 +322,25 @@ namespace _20180117_GiocoCatchTheGold
             pbNemico.Top = topNemico;
             pbNemico.Left = leftNemico;
         }
+
+       
+        private Direction? ToDirection(Keys keyCode)
+        {
+            switch (keyCode)
+            {
+                case Keys.Up:
+                    return Direction.Up;
+                case Keys.Down:
+                    return Direction.Down;
+                case Keys.Left:
+                    return Direction.Left;
+                case Keys.Right:
+                    return Direction.Right;
+                default:
+                    return null;
+            }
+        }
     }
+
+    
 }
