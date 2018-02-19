@@ -81,6 +81,72 @@ namespace CatchTheGold.Core
             }
         }
 
+        public bool Move(Direction direction, FieldElement[,] field, ref int top, ref int left)
+        {
+            switch (direction)
+            {
+                case Direction.Up:
+                    {
+                        if ((y - 1 >= 0 && !check_wall(field, direction)) || (win_position(xExit, yExit + 1) && win_for()))
+                        {
+                            top -= 50;
+                            y -= 1;
+                        }
+
+                        break;
+                    }
+
+                case Direction.Down:
+                    {
+                        if (y + 1 <= 10 && !check_wall(field, direction))
+                        {
+                            top += 50;
+                            y += 1;
+                        }
+
+                        break;
+                    }
+
+                case Direction.Right:
+                    {
+                        if (x + 1 <= 10 && !check_wall(field, direction))
+                        {
+                            left += 50;
+                            x += 1;
+                        }
+
+                        break;
+                    }
+
+                case Direction.Left:
+                    {
+                        if (x - 1 >= 0 && !check_wall(field, direction))
+                        {
+                            left -= 50;
+                            x -= 1;
+                        }
+
+                        break;
+                    }
+            }
+
+            if (x == xExit && y <= yExit)
+            {
+                return false;
+            }
+
+            else
+            {
+                if (CheckPower(field)) return true;
+                else return false;
+            }
+        }
+
+        private bool check_wall(FieldElement[,] field, Direction direction)
+        {
+            return Field.CheckWall(field, direction, x, y);
+        }
+
         public bool check_wall(char[,] field, string direction)
         {
             bool f = false;
@@ -129,6 +195,18 @@ namespace CatchTheGold.Core
             if (field[x, y] == 'D')
             {
                 field[x, y] = '\0';
+                mod_power();
+                return true;
+            }
+
+            else return false;
+        }
+
+        public bool CheckPower(FieldElement[,] field)
+        {
+            if (field[x, y] == FieldElement.Diamond)
+            {
+                field[x, y] = FieldElement.Empty;
                 mod_power();
                 return true;
             }
