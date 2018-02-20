@@ -1,7 +1,7 @@
-﻿using CatchTheGold.Core;
-using System;
+﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
+using CatchTheGold.Core;
 
 
 namespace _20180117_GiocoCatchTheGold
@@ -38,7 +38,7 @@ namespace _20180117_GiocoCatchTheGold
             personaggio.BringToFront();
         }
 
-        public void crea_Pictures(PictureBox[] oggetti, int ne, Control parent, int NOx, int NOy, char indicator, string path)
+        public void crea_Pictures(PictureBox[] oggetti, int ne, Control parent, int NOx, int NOy, FieldElement indicator, string path)
         {
             Random r = new Random();
             int x = 0;
@@ -49,9 +49,9 @@ namespace _20180117_GiocoCatchTheGold
                 x = r.Next(0, 11);
                 y = r.Next(0, 11);
 
-                if (x != NOx && y != NOy && campo[x, y] == '\0')
+                if (x != NOx && y != NOy && field[x, y] == FieldElement.Empty)
                 {
-                    campo[x, y] = indicator;
+                    field[x, y] = indicator;
                     oggetti[i] = new PictureBox();
 
                     oggetti[i].Width = dimension;
@@ -92,36 +92,33 @@ namespace _20180117_GiocoCatchTheGold
             }
         }
 
-        public bool Check_Diamond(PictureBox[] v, int ne, int dimension, ref int pos)
+        public int Find_Diamond(PictureBox[] v, int ne, int dimension)
         {
-            bool f = false;
-
             for (int i = 0; i < ne; i++)
             {
-                if (Eroe.x * dimension == v[i].Left && Eroe.y * dimension == v[i].Top)
+                if (Eroe.X * dimension == v[i].Left && Eroe.Y * dimension == v[i].Top)
                 {
-                    f = true;
-                    pos = i;
+                    return i;
                 }
             }
 
-            if (f) return true;
-            else return false;
+            return -1;
         }
 
         public bool Check_MaxPower(int max)
         {
-            if (Eroe.power == max) return true;
+            if (Eroe.GetPower == max) return true;
             else return false;
         }
 
         public bool Check_WinGame(int x, int y)
         {
-            if (Eroe.win_position(x, y) && Eroe.win_for()) return true;
+            if (Logic.YouWin(x, y)) return true;
             else return false;
         }
 
-        static char[,] campo;
+        static FieldElement[,] field;
+        GameLogic Logic;
 
         PictureBox[] Diamonds;
         PictureBox[] Walls;
@@ -163,7 +160,8 @@ namespace _20180117_GiocoCatchTheGold
                 pictureBoxEND.Visible = false;
                 lblExit.ForeColor = Color.Tomato;
 
-                campo = new char[11, 11];
+                field = new FieldElement[11, 11];
+                Logic = new GameLogic();
 
                 ND = 5;
                 Diamonds = new PictureBox[ND];
@@ -185,8 +183,8 @@ namespace _20180117_GiocoCatchTheGold
                 Nemico = new Nemico(txtNNemico.Text, 1, 1);
                 crea_Personaggio(pbNemico, panel1, dimension, topNemico, leftNemico, path_nemico);
 
-                crea_Pictures(Diamonds, ND, panel1, 5, 0, 'D', "Diamante.png");
-                crea_Pictures(Walls, NM, panel1, 5, 0, 'M', "Muro.png");
+                crea_Pictures(Diamonds, ND, panel1, 5, 0, FieldElement.Diamond, "Diamante.png");
+                crea_Pictures(Walls, NM, panel1, 5, 0, FieldElement.Wall, "Muro.png");
 
                 new_game = true;
 
@@ -203,7 +201,7 @@ namespace _20180117_GiocoCatchTheGold
         private void pictureBoxStart_Click(object sender, EventArgs e)
         {
             pbEroe.Focus();
-            pbEroe.PreviewKeyDown += MyPreviewKeyDown;
+            pbEroe.PreviewKeyDown += OnPreviewKeyDown;
             pbEroe.KeyDown += OnKeyDown;
 
             lblSpiegazione.Visible = false;
@@ -216,65 +214,67 @@ namespace _20180117_GiocoCatchTheGold
 
         void OnKeyDown(object sender, KeyEventArgs e)
         {
-            int i = 0;
-
             var direction = ToDirection(e.KeyCode);
             if (!direction.HasValue) return;
 
-            if (Eroe.move(direction.Value, campo, ref topEroe, ref leftEroe))
+            Eroe.Move(direction.Value, field);
+
+            pbEroe.Top = dimension * Eroe.Y;
+            pbEroe.Left = dimension * Eroe.X;
+
+            if (Check_WinGame(Eroe.X, Eroe.Y))
             {
-                if(Check_Diamond(Diamonds, ND, dimension, ref i))
-                {
-                    Diamonds[i].Visible = false;
-                    elimina_Picture(Diamonds, i, ref ND);
+                pictureBoxEND.Visible = true;
+                pictureBoxEND.BringToFront();
+                pictureBoxEND.ImageLocation = "You Win.gif";
 
-                    if (Eroe.power == 30)
-                        timer1.Interval = 250;
+                lblInfoFinale.Visible = true;
+                lblInfoFinale.Parent = pictureBoxEND;
+                lblInfoFinale.ForeColor = Color.BlueViolet;
+                lblInfoFinale.Text = txtNEroe.Text + " E' FUGGITO DA " + txtNNemico.Text + " !";
 
-                    if (Eroe.power >= 40)
-                        timer1.Interval = 200;
-                }
+                lblForza.Visible = false;
+                txtForza.Visible = false;
+                lblControl.Visible = false;
 
-                txtForza.Text = Eroe.power.ToString();
+                pbEroe.Enabled = false;
+                pbNemico.Enabled = false;
+
+                pictureBoxStart.Enabled = false;
+                pictureBoxNewGame.Focus();
             }
 
             else
             {
-                if (Check_WinGame(5, -1))
+                if (Logic.CheckPower(field, Eroe.X, Eroe.Y, Eroe.GetPower))
                 {
-                    pictureBoxEND.Visible = true;
-                    pictureBoxEND.BringToFront();
-                    pictureBoxEND.ImageLocation = "You Win.gif";
+                    int i = Find_Diamond(Diamonds, ND, dimension);
 
-                    lblInfoFinale.Visible = true;
-                    lblInfoFinale.Parent = pictureBoxEND;
-                    lblInfoFinale.ForeColor = Color.BlueViolet;
-                    lblInfoFinale.Text = txtNEroe.Text + " E' FUGGITO DA " + txtNNemico.Text + " !";
+                    if (i != -1)
+                    {
+                        Diamonds[i].Visible = false;
+                        elimina_Picture(Diamonds, i, ref ND);
+                    }
 
-                    lblForza.Visible = false;
-                    txtForza.Visible = false;
-                    lblControl.Visible = false;
+                    txtForza.Text = Eroe.GetPower.ToString();
 
-                    pbEroe.Enabled = false;
-                    pbNemico.Enabled = false;
+                    if (Eroe.GetPower == 30)
+                        timer1.Interval = 250;
 
-                    pictureBoxStart.Enabled = false;
-                    pictureBoxNewGame.Focus();
+                    if (Eroe.GetPower >= 40)
+                        timer1.Interval = 200;
+
+                    if (Check_MaxPower(50))
+                    {
+                        lblControl.Text = "FORZA OK !";
+                        lblControl.ForeColor = Color.Green;
+                        lblExit.ForeColor = Color.LightGreen;
+                    }
                 }
-            }
-
-            pbEroe.Top = topEroe;
-            pbEroe.Left = leftEroe;
-
-            if (Check_MaxPower(50))
-            {
-                lblControl.Text = "FORZA OK !";
-                lblControl.ForeColor = Color.Green;
-                lblExit.ForeColor = Color.LightGreen;
             }
         }
 
-        void MyPreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
+        void OnPreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
         {
             e.IsInputKey = true;
         }
@@ -291,11 +291,13 @@ namespace _20180117_GiocoCatchTheGold
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            if (Nemico.move(campo, Eroe.x, Eroe.y, ref topNemico, ref leftNemico))
-            {
-                pbNemico.Top = topNemico;
-                pbNemico.Left = leftNemico;
+            Nemico.Move(field, Eroe.X, Eroe.Y);
 
+            pbNemico.Top = dimension * Nemico.Y;
+            pbNemico.Left = dimension * Nemico.X;
+
+            if (Logic.YouLose(Nemico.X, Nemico.Y, Eroe.X, Eroe.Y))
+            {
                 timer1.Stop();
 
                 pictureBoxEND.Visible = true;
@@ -318,12 +320,8 @@ namespace _20180117_GiocoCatchTheGold
                 pictureBoxStart.Enabled = false;
                 pictureBoxNewGame.Focus();
             }
-
-            pbNemico.Top = topNemico;
-            pbNemico.Left = leftNemico;
         }
-
-       
+           
         private Direction? ToDirection(Keys keyCode)
         {
             switch (keyCode)
@@ -340,7 +338,5 @@ namespace _20180117_GiocoCatchTheGold
                     return null;
             }
         }
-    }
-
-    
+    } 
 }

@@ -10,14 +10,11 @@ namespace CatchTheGold.Core.Tests
     [TestFixture]
     public class FieldTests
     {
-        [TestCase(Direction.Up, 0, 2, ExpectedResult = false)]
-        [TestCase(Direction.Up, 1, 2, ExpectedResult = true)]
-        [TestCase(Direction.Down, 2, 0, ExpectedResult = false)]
-        [TestCase(Direction.Left, 3, 2, ExpectedResult = false)]
-        [TestCase(Direction.Down, 2, 1, ExpectedResult = false)]
-        [TestCase(Direction.Down, 4, 0, ExpectedResult = false)]
-        [TestCase(Direction.Left, 0, 3, ExpectedResult = false)]
-        [TestCase(Direction.Right, 2, 4, ExpectedResult = false)]
+        [TestCase(Direction.Up, 2, 2, ExpectedResult = false)]
+        //[TestCase(Direction.Down, 2, 2, ExpectedResult = true)]
+        //[TestCase(Direction.Left, 2, 2, ExpectedResult = true)]
+        //[TestCase(Direction.Right, 2, 2, ExpectedResult = false)]
+
         public bool CheckWall(Direction direction, int x, int y)
         {
             var field = new[,] {

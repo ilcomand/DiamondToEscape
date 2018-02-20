@@ -2,40 +2,38 @@
 {
     public class Nemico
     {
-        public string _nome;
-        public int x;
-        public int y;
+        public string _name;
+        public int X { get; private set; }
+        public int Y { get; private set; }
 
         public bool direction; //Serve per farlo muovere una volta in y ed una in x.
 
-        public Nemico(string name, int _x, int _y)
+        public Nemico(string name, int x, int y)
         {
-            _nome = name;
-            x = _x;
-            y = _y;
+            _name = name;
+            X = x;
+            Y = y;
 
             direction = false; //false -> si muove in y | true -> si muove in x.                 
         }
 
-        public bool move(char[,] field, int xeroe, int yeroe, ref int top, ref int left)
+        public void Move(FieldElement[,] field, int EroeX, int EroeY)
         {
             if (direction)
             {
-                if (x < xeroe)
+                if (X < EroeX)
                 {
-                    if (x + 1 <= 10 && field[x + 1, y] != 'M')
+                    if (CheckWall(field, Direction.Right))
                     {
-                        x += 1;
-                        left += 50;
+                        X += 1;
                     }
                 }
 
                 else
                 {
-                    if (x - 1 >= 0 && field[x - 1, y] != 'M')
+                    if (CheckWall(field, Direction.Left))
                     {
-                        x -= 1;
-                        left -= 50;
+                        X -= 1;
                     }
                 }
 
@@ -44,31 +42,29 @@
 
             else
             {
-                if (y < yeroe)
+                if (Y < EroeY)
                 {
-                    if (y + 1 <= 10 && field[x, y + 1] != 'M')
+                    if (CheckWall(field, Direction.Down))
                     {
-                        y += 1;
-                        top += 50;
+                        Y += 1;
                     }
                 }
 
                 else
                 {
-                    if (y - 1 >= 0 && field[x, y - 1] != 'M')
+                    if (CheckWall(field, Direction.Up))
                     {
-                        y -= 1;
-                        top -= 50;
+                        Y -= 1;
                     }
                 }
 
                 direction = true;
             }
+        }
 
-            if ((x == xeroe) && (y == yeroe))
-                return true;
-            else
-                return false;
+        private bool CheckWall(FieldElement[,] field, Direction direction)
+        {
+            return Field.CheckWall(field, direction, X, Y);
         }
     }
 }

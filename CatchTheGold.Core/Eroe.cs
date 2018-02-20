@@ -1,35 +1,29 @@
-﻿
-namespace CatchTheGold.Core
+﻿namespace CatchTheGold.Core
 {
     public class Eroe
     {
-        private string _nome;
-        private int _forza;
-        public int x;
-        public int y;
-        public int xExit;
-        public int yExit;
+        private string _name;
+        static private int _power;
+        public int X { get; private set; }
+        public int Y { get; private set; }
 
-        public Eroe(string name, int _x, int _y)
+        public Eroe(string name, int x, int y)
         {
-            _nome = name;
-            _forza = 0;
-            x = _x;
-            y = _y;
-            xExit = 5;
-            yExit = -1;
+            _name = name;
+            _power = 0;
+            X = x;
+            Y = y;
         }
 
-        public bool move(Direction direction, char[,] field, ref int top, ref int left)
+        public void Move(Direction direction, FieldElement[,] field)
         {
             switch (direction)
             {
                 case Direction.Up:
                     {
-                        if ((y - 1 >= 0 && !check_wall(field, "Top")) || (win_position(xExit, yExit + 1) && win_for()))
+                        if (CheckWall(field, direction) || (IsWinPosition() && HasPowerToWin()))
                         {
-                            top -= 50;
-                            y -= 1;
+                            Y -= 1;
                         }
 
                         break;
@@ -37,10 +31,9 @@ namespace CatchTheGold.Core
 
                 case Direction.Down:
                     {
-                        if (y + 1 <= 10 && !check_wall(field, "Down"))
+                        if (CheckWall(field, direction))
                         {
-                            top += 50;
-                            y += 1;
+                            Y += 1;
                         }
 
                         break;
@@ -48,10 +41,9 @@ namespace CatchTheGold.Core
 
                 case Direction.Right:
                     {
-                        if (x + 1 <= 10 && !check_wall(field, "Right"))
+                        if (CheckWall(field, direction))
                         {
-                            left += 50;
-                            x += 1;
+                            X += 1;
                         }
 
                         break;
@@ -59,191 +51,42 @@ namespace CatchTheGold.Core
 
                 case Direction.Left:
                     {
-                        if (x - 1 >= 0 && !check_wall(field, "Left"))
+                        if (CheckWall(field, direction))
                         {
-                            left -= 50;
-                            x -= 1;
+                            X -= 1;
                         }
 
                         break;
                     }
             }
-
-            if (x == xExit && y <= yExit)
-            {
-                return false;
-            }
-
-            else
-            {
-                if (check_power(field)) return true;
-                else return false;
-            }
         }
 
-        public bool Move(Direction direction, FieldElement[,] field, ref int top, ref int left)
+        private bool CheckWall(FieldElement[,] field, Direction direction)
         {
-            switch (direction)
-            {
-                case Direction.Up:
-                    {
-                        if ((y - 1 >= 0 && !check_wall(field, direction)) || (win_position(xExit, yExit + 1) && win_for()))
-                        {
-                            top -= 50;
-                            y -= 1;
-                        }
-
-                        break;
-                    }
-
-                case Direction.Down:
-                    {
-                        if (y + 1 <= 10 && !check_wall(field, direction))
-                        {
-                            top += 50;
-                            y += 1;
-                        }
-
-                        break;
-                    }
-
-                case Direction.Right:
-                    {
-                        if (x + 1 <= 10 && !check_wall(field, direction))
-                        {
-                            left += 50;
-                            x += 1;
-                        }
-
-                        break;
-                    }
-
-                case Direction.Left:
-                    {
-                        if (x - 1 >= 0 && !check_wall(field, direction))
-                        {
-                            left -= 50;
-                            x -= 1;
-                        }
-
-                        break;
-                    }
-            }
-
-            if (x == xExit && y <= yExit)
-            {
-                return false;
-            }
-
-            else
-            {
-                if (CheckPower(field)) return true;
-                else return false;
-            }
+            return Field.CheckWall(field, direction, X, Y);
         }
 
-        private bool check_wall(FieldElement[,] field, Direction direction)
+        static public void ModPower()
         {
-            return Field.CheckWall(field, direction, x, y);
+            _power += 10;
         }
 
-        public bool check_wall(char[,] field, string direction)
+        private bool IsWinPosition()
         {
-            bool f = false;
-
-            switch(direction)
-            {
-                case "Top":
-                    {
-                        if (field[x, y - 1] == 'M')
-                            f = true;
-
-                        break;
-                    }
-
-                case "Down":
-                    {
-                        if (field[x, y + 1] == 'M')
-                            f = true;
-
-                        break;
-                    }
-
-                case "Right":
-                    {
-                        if (field[x + 1, y] == 'M')
-                            f = true;
-
-                        break;
-                    }
-
-                case "Left":
-                    {
-                        if (field[x - 1, y] == 'M')
-                            f = true;
-
-                        break;
-                    }
-            }
-
-            if (f) return true;
-            else return false;
+            return GameLogic.IsWinPosition(X, Y);
         }
 
-        public bool check_power(char[,] field)
+        private bool HasPowerToWin()
         {
-            if (field[x, y] == 'D')
-            {
-                field[x, y] = '\0';
-                mod_power();
-                return true;
-            }
-
-            else return false;
+            return GameLogic.HasPowerToWin(_power);
         }
 
-        public bool CheckPower(FieldElement[,] field)
-        {
-            if (field[x, y] == FieldElement.Diamond)
-            {
-                field[x, y] = FieldElement.Empty;
-                mod_power();
-                return true;
-            }
-
-            else return false;
-        }
-
-        public void mod_power()
-        {
-            _forza += 10;
-        }
-
-        public int power
+        public int GetPower
         {
             get
             {
-                return _forza;
+                return _power;
             }
         }
-
-        public bool win_position(int x_exit, int y_exit)
-        {
-            if (x == x_exit && y == y_exit)
-                return true;
-
-            else
-                return false;
-        }
-
-        public bool win_for()
-        {
-            if (_forza == 50)
-                return true;
-            else
-                return false;
-        }
     }
-
-    
 }
