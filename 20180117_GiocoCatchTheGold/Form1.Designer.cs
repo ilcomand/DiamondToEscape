@@ -207,14 +207,14 @@
             this.txtNEroe.Location = new System.Drawing.Point(660, 97);
             this.txtNEroe.Name = "txtNEroe";
             this.txtNEroe.Size = new System.Drawing.Size(79, 20);
-            this.txtNEroe.TabIndex = 9;
+            this.txtNEroe.TabIndex = 0;
             // 
             // txtNNemico
             // 
             this.txtNNemico.Location = new System.Drawing.Point(661, 205);
             this.txtNNemico.Name = "txtNNemico";
             this.txtNNemico.Size = new System.Drawing.Size(78, 20);
-            this.txtNNemico.TabIndex = 10;
+            this.txtNNemico.TabIndex = 2;
             // 
             // openFileDialog1
             // 
@@ -225,7 +225,7 @@
             this.btnScegliImmagine1.Location = new System.Drawing.Point(700, 122);
             this.btnScegliImmagine1.Name = "btnScegliImmagine1";
             this.btnScegliImmagine1.Size = new System.Drawing.Size(81, 25);
-            this.btnScegliImmagine1.TabIndex = 11;
+            this.btnScegliImmagine1.TabIndex = 1;
             this.btnScegliImmagine1.Text = "SCEGLI";
             this.btnScegliImmagine1.UseVisualStyleBackColor = true;
             this.btnScegliImmagine1.Click += new System.EventHandler(this.btnScegliImmagine1_Click);
@@ -235,7 +235,7 @@
             this.btnScegliImmagine2.Location = new System.Drawing.Point(700, 231);
             this.btnScegliImmagine2.Name = "btnScegliImmagine2";
             this.btnScegliImmagine2.Size = new System.Drawing.Size(81, 25);
-            this.btnScegliImmagine2.TabIndex = 12;
+            this.btnScegliImmagine2.TabIndex = 3;
             this.btnScegliImmagine2.Text = "SCEGLI";
             this.btnScegliImmagine2.UseVisualStyleBackColor = true;
             this.btnScegliImmagine2.Click += new System.EventHandler(this.btnScegliImmagine2_Click);
